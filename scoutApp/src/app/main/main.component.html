@@ -1,0 +1,300 @@
+<app-header></app-header>
+
+<div *ngIf="isDeveloperModeOn" class="dropdown p-2">
+  <button type="button" class="btn btn-info dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown"
+    aria-haspopup="true" aria-expanded="false">
+    Modificar Carrusel
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <button (click)="open(CarrouselModal,'Carrousel')" class="dropdown-item btn-light">Modificar Carrusel</button>
+  </div>
+</div>
+
+<ng-template #CarrouselModal let-modal>
+  <form [formGroup]="CarrouselForm">
+    <div class="modal-header">
+      <h5 class="modal-title" id="modal-basic-title">{{tittleNewsForm}}</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+        (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="container btn-group p-2" role="group" aria-label="Basic example">
+      <button type="button" (click)="ChangeCarrouselMenu('Carrusel 1')" class="btn btn-primary">Carrusel 1</button>
+      <button type="button" (click)="ChangeCarrouselMenu('Carrusel 2')" class="btn btn-primary">Carrusel 2</button>
+      <button type="button" (click)="ChangeCarrouselMenu('Carrusel 3')" class="btn btn-primary">Carrusel 3</button>
+    </div>
+    <div class="modal-body">
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1">Título {{TittleNumberCarrousel}}</span>
+        <input formControlName="TituloCarrousel" type="text" class="form-control" aria-label="Username"
+          aria-describedby="basic-addon1">
+      </div>
+
+      <label for="basic-url" class="form-label">Cuerpo {{TittleNumberCarrousel}}</label>
+      <div class="input-group mb-3">
+        <textarea formControlName="CuerpoCarrousel" class="form-control" id="exampleFormControlTextarea1"
+          rows="3"></textarea>
+      </div>
+
+      <label for="basic-url" class="form-label">Subir Imagen {{TittleNumberCarrousel}}</label>
+      <div class="custom-file">
+        <input (change)="onFileSelectedCarrousel($event)" formControlName="ImagenCarrousel" type="file"
+          class="custom-file-input" id="customFileLang" lang="es">
+        <label class="custom-file-label" for="customFileLang">C:/fakepath/{{urlImageCarrousel}}</label>
+      </div>
+    </div>
+    <div class="container">
+      <div *ngIf="isAlertCarrouselOn" class="alert alert-warning p-2" role="alert">
+        {{alertMessageCarrousel}}
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" (click)="updateCarrousel(TittleNumberCarrousel)" class="btn btn-success">Actualizar Carrusel
+      </button>
+      <button type="button" class="btn btn-secondary" data-dismiss="modal"
+        (click)="modal.dismiss('Cross click')">Salir</button>
+    </div>
+  </form>
+</ng-template>
+
+
+
+<div id="myCarousel" class="carousel slide border border-danger" data-ride="carousel">
+
+  <ol class="carousel-indicators">
+    <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+    <li data-target="#myCarousel" data-slide-to="1"></li>
+    <li data-target="#myCarousel" data-slide-to="2"></li>
+  </ol>
+  <div class="carousel-inner">
+
+    <div class="carousel-item active">
+
+      <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img"
+        aria-label=" :  " preserveAspectRatio="xMidYMid slice" focusable="false">
+        <title> </title>
+        <rect width="100%" height="100%" fill="#777" /><text x="50%" y="50%" fill="#777" dy=".3em"> </text>
+      </svg>
+      <img [src]="urlCarrouselImage1" class="image">
+      <div class="container">
+        <div class="carousel-caption text-left">
+          <h1>{{DataCarrousel1.TituloCarrousel}}</h1>
+          <p>{{DataCarrousel1.CuerpoCarrousel}}</p>
+          <!-- espacios para futuros botones -->
+        </div>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img"
+        aria-label=" :  " preserveAspectRatio="xMidYMid slice" focusable="false">
+        <title> </title>
+        <rect width="100%" height="100%" fill="#777" /><text x="50%" y="50%" fill="#777" dy=".3em"> </text>
+      </svg>
+      <img [src]="urlCarrouselImage2">
+      <div class="container">
+        <div class="carousel-caption">
+          <h1>{{DataCarrousel2.TituloCarrousel}}</h1>
+          <p>{{DataCarrousel2.CuerpoCarrousel}}</p>
+          <!-- espacios para futuros botones -->
+        </div>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <svg class="bd-placeholder-img" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img"
+        aria-label=" :  " preserveAspectRatio="xMidYMid slice" focusable="false">
+        <title> </title>
+        <rect width="100%" height="100%" fill="#777" /><text x="50%" y="50%" fill="#777" dy=".3em"> </text>
+      </svg>
+      <img [src]="urlCarrouselImage3">
+      <div class="container">
+        <div class="carousel-caption text-right">
+          <h1>{{DataCarrousel3.TituloCarrousel}}</h1>
+          <p>{{DataCarrousel3.CuerpoCarrousel}}</p>
+          <!-- espacios para futuros botones -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<!--Main Navigation-->
+<header>
+  <!-- Intro settings -->
+  <style>
+    #intro {
+      /* Margin to fix overlapping fixed navbar */
+      margin-top: 58px;
+    }
+
+    @media (max-width: 991px) {
+      #intro {
+        /* Margin to fix overlapping fixed navbar */
+        margin-top: 45px;
+      }
+    }
+  </style>
+
+
+
+
+</header>
+<!--Main Navigation-->
+
+<!--Main layout-->
+<main class="my-5">
+  <div class="container">
+
+    <div *ngIf="isDeveloperModeOn" class="dropdown p-2">
+      <button type="button" class="btn btn-success dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
+        Agregar Noticias
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <button class="dropdown-item btn-light" (click)="open(AddNewsModal,'Add')">Agregar Noticia</button>
+        <button class="dropdown-item btn-light" (click)="open(AddNewsModal,'Update')">Modificar Noticia</button>
+      </div>
+    </div>
+
+    <!--Section: Content-->
+    <div class="p-4 card border border-danger">
+      <section>
+        <div class="row">
+          <div id="card-bg" *ngFor="let news of allNews| paginate: config; index as i"
+            class="col-lg-4 col-md-12 mb-4 mb-lg-0 border border-danger p-2">
+            <!-- News block -->
+            <div>
+              <!-- Featured image -->
+              <div class="bg-image overlay">
+                <img [src]="urlsImagesNews[i]" class="img-fluid" />
+                <a [routerLink]="['/noticia', news._id.$oid]" [state]="{state: news}">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                </a>
+              </div>
+              <!-- Article data -->
+              <div class="row mb-3">
+                <div class="col-6 text-end">
+                  <u>{{news.Fecha}}</u>
+                </div>
+              </div>
+              <!-- Article title and description -->
+              <a [routerLink]="['/noticia', news._id.$oid]" [state]="{state: news}" class="text-dark">
+                <h5>{{news.Titulo}}</h5>
+                <hr>
+                <p>
+                  {{news.Bajada}}
+                </p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <hr class="border border-danger">
+      <div class="row justify-content-md-center">
+        <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+      </div>
+    </div>
+    <!--Section: Content-->
+  </div>
+  <ng-template #AddNewsModal let-modal>
+    <form [formGroup]="NewsForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-basic-title">{{tittleNewsForm}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+          (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+
+        <div *ngIf="!isModeAddNews" class="form-group">
+          <label for="exampleFormControlSelect1">Seleccione Noticia</label>
+          <select (change)="getDataNew($event.target.value)" class="form-control" id="exampleFormControlSelect1">
+            <option [value]="i" *ngFor="let news of allNews; index as i">{{news.Titulo}}-{{news.Fecha}}</option>
+          </select>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1">Título</span>
+          <input formControlName="Titulo" type="text" class="form-control" aria-label="Username"
+            aria-describedby="basic-addon1">
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1">Bajada</span>
+          <input formControlName="Bajada" type="text" class="form-control" aria-label="Username"
+            aria-describedby="basic-addon1">
+        </div>
+
+        <label for="basic-url" class="form-label">Entradilla</label>
+        <div class="input-group mb-3">
+          <textarea formControlName="Entradilla" class="form-control" id="exampleFormControlTextarea1"
+            rows="3"></textarea>
+        </div>
+
+        <label for="basic-url" class="form-label">Cuerpo</label>
+        <div class="input-group mb-3">
+          <textarea formControlName="Cuerpo" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        </div>
+        <label for="basic-url" class="form-label">Subir Imagen Noticia</label>
+        <div class="custom-file">
+          <input (change)="onFileSelected($event)" type="file" class="custom-file-input" id="customFileLang" lang="es">
+          <label class="custom-file-label" for="customFileLang">C:/fakepath/{{fileName}}</label>
+        </div>
+      </div>
+
+      <div class="container">
+        <div *ngIf="isAlertOnErr" class="alert alert-danger container" role="alert">
+          {{messageForm}}
+        </div>
+        <div *ngIf="isAlertOnSucc" class="alert alert-success container" role="alert">
+          {{messageForm}}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button *ngIf="isModeAddNews" type="submit" class="btn btn-success" (click)="addNews()">Publicar
+          Noticia</button>
+        <button *ngIf="!isModeAddNews" type="submit" class="btn btn-warning" (click)="updateNews()">Modificar
+          Noticia</button>
+        <button *ngIf="!isModeAddNews" type="submit" class="btn btn-danger"
+          (click)="open(DeleteModal,'delete')">Eliminar
+          Noticia</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+          (click)="modal.dismiss('Cross click')">Salir</button>
+      </div>
+    </form>
+  </ng-template>
+</main>
+
+
+
+
+<ng-template #DeleteModal let-modal>
+  <form [formGroup]="NewsForm">
+    <div class="modal-header">
+      <h5 class="modal-title" id="modal-basic-title">{{tittleDeleteModal}}</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+        (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="modal-letter">¿Desea Eliminar la Noticia?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="deleteNews()">Eliminar</button>
+      <button type="button" class="btn btn-secondary" data-dismiss="modal"
+        (click)="modal.dismiss('Cross click')">Salir</button>
+    </div>
+  </form>
+</ng-template>

@@ -1,0 +1,87 @@
+
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"> <img src="/assets/img/Insigniagrupo.bmp" alt="" width="30" height="24"
+        class="d-inline-block align-text-top"> Grupo Scout LSFB</a>
+    <button (click)="isShown=!isShown" class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div [ngClass]="{ 'show': isShown }" class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <div class="dropdown">
+          <a class="nav-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            Unidades
+          </a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="/melen-lemu">Bandada Malen Lemu </a>
+            <a class="dropdown-item" href="/pies-sigilosos">Manada Pies Sigilosos</a>
+            <a class="dropdown-item" href="/cielo-austral">Compañía Cielo Austral</a>
+            <a class="dropdown-item" href="/aillarehue">Tropa Aillarehue</a>
+            <a class="dropdown-item" href="/amuillan">Avanzada Pioner@s Amuillán </a>
+            <a class="dropdown-item" href="#">Clan de Caminantes</a>
+          </div>
+        </div>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/circulares">Circulares</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/historia">Historia</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/campamentos">Campamentos</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item me-3 me-lg-1 active">
+          <a class="nav-link" href="https://www.facebook.com/GGSSFB">
+            <span><i class="bi bi-facebook"></i></span>
+          </a>
+        </li>
+        <li class="nav-item me-3 me-lg-1 active">
+          <a class="nav-link" href="https://www.instagram.com/grupoguiasyscoutssfb/">
+            <span><i class="bi bi-instagram"></i></span>
+          </a>
+        </li>
+        <li class="nav-item me-3 me-lg-1 active">
+          <a class="nav-link" href="/login">
+            <span><i class="bi bi-gear"></i></span>
+          </a>
+        </li>
+        <li *ngIf="showLogOutButton" class="nav-item me-3 me-lg-1 active">
+          <a type="button" class="nav-link" (click)="open(mymodal)">
+            <span><i class="bi bi-person-circle"></i></span>
+            Cerrar Sesión
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
+
+<!-- Modal LogOut -->
+<ng-template #mymodal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="modal-basic-title">Cerrar Sesión</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p id="modal-logout-letter">¿Desea Cerrar Sesión?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="modal.close('LogOut')" class="btn btn-primary">Cerrar Sesión</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+      (click)="modal.dismiss('Cross click')">Cancelar</button>
+  </div>
+</ng-template>

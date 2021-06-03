@@ -1,0 +1,60 @@
+  /* CUSTOMIZE THE CAROUSEL
+  -------------------------------------------------- */
+  
+  /* Carousel base class */
+  .carousel {
+    margin-bottom: 4rem;
+  }
+  /* Since positioning the image, we need to help out the caption */
+  .carousel-caption {
+    bottom: 3rem;
+    z-index: 10;
+  }
+  
+  /* Declare heights because of positioning of img element */
+  .carousel-item {
+    height: 50rem;
+    
+  
+  }
+  .carousel-item > img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    height: 50rem;
+    
+  }
+
+  /*Overlay (Oscurecimiento imagenes noticias)*/
+
+  .overlay:hover div {
+    opacity: 1;
+      transition: all 0.2s ease-in;
+  }
+  .overlay div {
+    position: absolute;
+      box-sizing: border-box;
+      top: 0;
+      background-color: rgba(255,255,255,0.3);
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: all 0.2s ease-in;
+  }
+
+  .card{
+    background-color: #2e3742 !important
+  }
+
+  #card-bg{
+    background-color:#41546e !important
+  }
+
+.cuerpo{
+  white-space: pre-wrap;
+}
+
+#modal-letter{
+  color: rgb(0, 0, 0)
+}

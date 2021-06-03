@@ -1,0 +1,29 @@
+<body>
+
+  <div class="space"></div>
+
+  <div class="container">
+    <h1 class="text-center fw-bold featurette-heading">{{newData.Titulo}}</h1>
+    <figure class="container text-center">
+      <figcaption class="blockquote-footer">
+        Noticia publicada el <cite title="Source Title">{{newData.Fecha}}</cite>
+      </figcaption>
+    </figure>
+    <hr class="border border-danger">
+    <p [innerHTML]="newData.Bajada" class="breakLine lead text-justify font-weight-bold"></p>
+  </div>
+
+
+  <!-- Post Content -->
+
+    <figure class="container text-center">
+      <div class="container text-center p-4">
+        <img [src]="urlsImage" class="img-fluid">
+      </div>
+      <p [innerHTML]="newData.Entradilla" class="breakLine lead text-justify">
+      </p>
+      <p [innerHTML]="newData.Cuerpo" class="breakLine lead text-justify">
+      </p>
+    </figure>
+
+</body>
