@@ -16,6 +16,7 @@ export class AppComponent {
   name = 'Get Current Url Route Demo';
   currentRoute: string;
   rama
+  isDeveloperModeOn
 
 
   constructor(private router: Router, private elementRef: ElementRef) {
@@ -52,6 +53,7 @@ export class AppComponent {
     });
 
   }
+
 
 }
 

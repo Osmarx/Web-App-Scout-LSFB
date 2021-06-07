@@ -1,54 +1,57 @@
 <app-header></app-header>
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-sm">
-      <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-        <button *ngIf="hiddenAdminButton" type="button" class="btn btn-success" (click)="openFile()">
-          Subir Archivo
-          <input name="FileDocument" type="file" style="display:none" (change)="handle($event)">
-        </button>
-        <button *ngIf="hiddenAdminButton" (click)="openDeleteButtons()" type="button" class="btn btn-danger">Eliminar Archivo</button>
-      </div>
+
+<div class="row">
+  <div class="col-sm">
+    <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+      <button *ngIf="hiddenAdminButton" type="button" class="btn btn-success" (click)="openFile()">
+        Subir Archivo
+        <input name="FileDocument" type="file" style="display:none" (change)="handle($event)">
+      </button>
+      <button *ngIf="hiddenAdminButton" (click)="openDeleteButtons()" type="button" class="btn btn-danger">Eliminar
+        Archivo</button>
     </div>
-  </div>
-  <div class="row p-2">
-    <div class="col-sm-2 p-0">
-      <div *ngIf='serverMessageSucc' class="col-sm alert alert-success" role="alert">
-        {{serverMessageSucc}}
-      </div>
-      <div *ngIf='serverMessageErr' class="col-sm alert alert-danger" role="alert">
-        {{serverMessageErr}}
-      </div>
-    </div>
-    <div class="col-sm-2">
-    </div>
-    <div class="col-sm-2">
-    </div>
-  </div>
-  <div class="row">
-    <table class="table table-dark">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Descripción</th>
-          <th scope="col">Descargar</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let File of FilesReq; index as i">
-          <th scope="row">{{i}}</th>
-          <td>{{File.Nombre}}</td>
-          <td>{{File.Descripcion}}</td>
-          <td><button *ngIf="!isopenDeleteButtons" type="button" (click)="DownloadFile(File);" class="btn btn-info">Descargar</button>
-            <button *ngIf="isopenDeleteButtons" (click)="deleteFiles(File)" type="button" class="btn btn-danger">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </div>
+<div class="row p-2">
+  <div class="col-sm-2 p-0">
+    <div *ngIf='serverMessageSucc' class="col-sm alert alert-success" role="alert">
+      {{serverMessageSucc}}
+    </div>
+    <div *ngIf='serverMessageErr' class="col-sm alert alert-danger" role="alert">
+      {{serverMessageErr}}
+    </div>
+  </div>
+  <div class="col-sm-2">
+  </div>
+  <div class="col-sm-2">
+  </div>
+</div>
+<div class="row">
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Descripción</th>
+        <th scope="col">Descargar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let File of FilesReq; index as i">
+        <th scope="row">{{i}}</th>
+        <td>{{File.Nombre}}</td>
+        <td>{{File.Descripcion}}</td>
+        <td><button *ngIf="!isopenDeleteButtons" type="button" (click)="DownloadFile(File);"
+            class="btn btn-info">Descargar</button>
+          <button *ngIf="isopenDeleteButtons" (click)="deleteFiles(File)" type="button"
+            class="btn btn-danger">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
 
 <button hidden type="button" class="btn btn-danger" (click)="open(uploadDownloadmodal)"
@@ -65,6 +68,13 @@
   <div class="modal-body">
     <p>¿Desea subir el siguiente archivo?</p>
     <p>{{Uploadpath}}</p>
+    <form [formGroup]="DescriptionForm">
+      <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1">Descripción</span>
+        <input formControlName="Descripcion" type="text" class="form-control" aria-label="Username"
+          aria-describedby="basic-addon1">
+      </div>
+    </form>
   </div>
   <div class="modal-footer">
     <button type="submit" (click)="modal.close('Datos Enviados')" class="btn btn-success">Subir Archivo</button>
@@ -72,4 +82,3 @@
       (click)="modal.dismiss('Cross click')">Cancelar</button>
   </div>
 </ng-template>
-

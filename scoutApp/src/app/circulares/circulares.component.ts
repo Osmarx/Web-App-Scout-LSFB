@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {FilesService} from '../mantenimiento/services/files.service'
 import * as fileSaver from 'file-saver';
-
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-circulares',
@@ -33,7 +33,9 @@ export class CircularesComponent implements OnInit {
   hiddenAdminButton: boolean;
   FilesReq: object;
   isopenDeleteButtons= false;
-  
+  DescriptionForm = new FormGroup({
+    Descripcion: new FormControl('')
+  })
 
   ngOnInit(): void {
 
@@ -87,7 +89,11 @@ export class CircularesComponent implements OnInit {
       this.closeResult = this.Uploadpath
 
       const formData: FormData = new FormData();
+
+      console.log(this.DescriptionForm.value.Descripcion)
+
       formData.append('file',this._file);
+      formData.append('Descripcion',this.DescriptionForm.value.Descripcion);
       
       this._filesService.UploadFile(formData).subscribe(
         (response) => {

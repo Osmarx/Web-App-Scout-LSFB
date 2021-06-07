@@ -138,13 +138,15 @@ class UploadFile(Resource):
    def post(self):
      parse = reqparse.RequestParser()
      parse.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
+     parse.add_argument('Descripcion')
      args = parse.parse_args()
      _file = args['file']
+     description = args['Descripcion']
      filename=_file.filename
      db = MongoDBconnect.mongodbConnect()
      _id=db.files.insert({
          "Nombre": _file.filename,
-         "Descripcion": "Por trabajar"
+         "Descripcion": description
      }) 
      _file.save("assets/documentos/"+str(_id)+filename)   
      return "archivo subido", 200
