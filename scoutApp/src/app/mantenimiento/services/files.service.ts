@@ -49,7 +49,7 @@ export class FilesService{
 
     let headers = new HttpHeaders({ 'Content-Type': 'application/json'})
     let options = { headers: headers, observe: 'response' as 'body'};
-    console.log("asd",JSON.stringify(FileData))
+
     return this.http.delete(this.url + 'deleteFiles/'+JSON.stringify(FileData),options)
 
    }

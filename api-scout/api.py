@@ -353,8 +353,134 @@ class getImageRama(Resource):
             ElementName = element['ImageFile']
             ElementUnidad = element['Unidad'].replace(" ","").replace("í","i").replace("á","a").replace("@","o")
         return send_from_directory('assets/Imagenes/ramas/'+ElementUnidad,ID+ElementName, as_attachment=True)
+
+class UpdateHistory(Resource):
+    def put(self,_id):
+        _Id = json.loads(_id)
+        ID = _Id["$oid"]
+        id_mongo = ObjectId(ID)
+        parse = reqparse.RequestParser()
+        parse.add_argument('Elemento')
+        parse.add_argument('Titulo')
+        parse.add_argument('Texto')
+        parse.add_argument('Imagen',type=werkzeug.datastructures.FileStorage, location='files')
+        req = parse.parse_args()
+        db = MongoDBconnect.mongodbConnect()
+        if(req['Imagen']):
+            _ImageFile=req['Imagen']
+            _ImageFileName = req['Imagen'].filename
+            data=db.history.find({'_id':id_mongo})
+            _FileNameDelete = ""
+            for _file in data:
+                _FileNameDelete = _file["Imagen"]
+            os.remove('assets/Imagenes/historia/'+str(id_mongo)+_FileNameDelete)
+            _ImageFile.save("assets/Imagenes/historia/"+str(id_mongo)+_ImageFileName)
+        else:
+            _ImageFileName = ""
+        db.history.update_one({'_id': id_mongo},{
+        '$set':{'Elemento':req['Elemento']}}, upsert=False)
+        db.history.update_one({'_id': id_mongo},{
+        '$set':{'Titulo':req['Titulo']}}, upsert=False)
+        db.history.update_one({'_id': id_mongo},{
+        '$set':{'Texto':req['Texto']}}, upsert=False)
+        db.history.update_one({'_id': id_mongo},{
+        '$set':{'Imagen':_ImageFileName }}, upsert=False)
+        return "Actualizado con Éxito",200
+            
+
+
+
+class History(Resource):
+    def get(self):
+        db = MongoDBconnect.mongodbConnect()
+        Data=db.history.find()
+        allData = []
+        for data in Data:
+            allData.append(data)
+        allDataJson = {"Data": allData}
+        return json.loads(json_util.dumps(allDataJson,default=str))
+    
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('Elemento')
+        parse.add_argument('Titulo')
+        parse.add_argument('Texto')
+        parse.add_argument('Imagen',type=werkzeug.datastructures.FileStorage, location='files')
+        req = parse.parse_args()
+        if(req['Imagen']):
+            _ImageFile = req['Imagen']
+            _ImageFileName=req['Imagen'].filename
+        else:
+            _ImageFileName = ""
+        db = MongoDBconnect.mongodbConnect()
+        _Id=db.history.insert({
+        "Elemento": req['Elemento'],
+        "Titulo": req['Titulo'],
+        "Texto": req['Texto'],
+        "Imagen": _ImageFileName
+        })
+        if(req['Imagen']):
+            _ImageFile.save("assets/Imagenes/historia/"+str(_Id)+req['Imagen'].filename)
+        return "Agregado con Éxito",200
         
-        
+class getHistoryImage(Resource):
+    def get(self,_id):
+        _Id = json.loads(_id)
+        ID = _Id["$oid"]
+        id_mongo = ObjectId(ID)
+        db = MongoDBconnect.mongodbConnect()
+        elements = db.history.find({"_id":id_mongo})
+        ElementName = None
+        for element in elements:
+            ElementName = element['Imagen']
+        return send_from_directory('assets/Imagenes/historia',ID+ElementName, as_attachment=True)
+
+class Camp(Resource):
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('Lugar')
+        parse.add_argument('Ano')
+        parse.add_argument('Longitud')
+        parse.add_argument('Latitud')
+        parse.add_argument('Estacion')
+        req = parse.parse_args()
+        db = MongoDBconnect.mongodbConnect()
+        db.camps.insert({
+        "Lugar": req['Lugar'],
+        "Ano": req['Ano'],
+        "Longitud": req['Longitud'],
+        "Latitud": req['Latitud'],
+        "Estacion": req['Estacion']
+        })
+        return "Guardado con éxito", 200
+    def get(self):
+        db = MongoDBconnect.mongodbConnect()
+        Data=db.camps.find()
+        allData = []
+        for data in Data:
+            allData.append(data)
+        allDataJson = {"CampsData": allData}
+        return json.loads(json_util.dumps(allDataJson,default=str))
+
+class DeleteCamp(Resource):
+    def delete(self,_id):
+        _Id = json.loads(_id)
+        ID = _Id["$oid"]
+        id_mongo = ObjectId(ID)
+        db = MongoDBconnect.mongodbConnect()
+        db.camps.delete_one({'_id': id_mongo})
+        return "Campamento Eliminado", 200
+
+
+
+
+
+
+
+
+
+
+
 
         
 
@@ -374,6 +500,12 @@ api.add_resource(getImageCarrousel, '/getImageCarrousel/<string:_id>')
 api.add_resource(Ramas, '/ramas/<string:Rama>')
 api.add_resource(Rama, '/rama/<string:_id>')
 api.add_resource(getImageRama, '/getImageRama/<string:_id>')
+api.add_resource(UpdateHistory, '/updateHistory/<string:_id>')
+api.add_resource(History, '/history')
+api.add_resource(getHistoryImage, '/getHistoryImage/<string:_id>')
+api.add_resource(Camp, '/Camp')
+api.add_resource(DeleteCamp, '/deleteCamp/<string:_id>')
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")

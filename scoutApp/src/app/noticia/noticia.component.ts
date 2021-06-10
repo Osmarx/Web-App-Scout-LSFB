@@ -41,8 +41,9 @@ export class NoticiaComponent implements OnInit {
     }
     
     
-    console.log(this.newData.Entradilla)
+    
 
+  
     this._newsService.getImageNews(this.newData._id).subscribe(
       (response)=>{
 
@@ -50,8 +51,9 @@ export class NoticiaComponent implements OnInit {
         this.urlsImage = this.sanitizer.bypassSecurityTrustUrl(urlImageNews)
    
       }
-    )
+    ) 
   }
+  
 
 
 }

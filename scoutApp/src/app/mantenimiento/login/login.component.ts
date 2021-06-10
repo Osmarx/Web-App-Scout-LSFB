@@ -54,6 +54,23 @@ export class LoginComponent implements OnInit {
         this.showDeveloperMode= true
         this.islogIn = true
         localStorage.setItem('isLogin',String(this.islogIn))
+        
+        console.log(this.loginForm.value)
+        
+        var dataToken = {
+          username: this.loginForm.value.mail,
+          password: this.loginForm.value.password
+
+        }
+
+        console.log(dataToken)
+
+       this._userService.getToken(dataToken).subscribe((res)=>{
+            console.log(res)
+        }) 
+
+
+
       },
       (error) => {                            
         this.messageError = error.error

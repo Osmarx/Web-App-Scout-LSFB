@@ -38,7 +38,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let File of FilesReq; index as i">
+      <tr *ngFor="let File of FilesReq | paginate: config; index as i">
         <th scope="row">{{i}}</th>
         <td>{{File.Nombre}}</td>
         <td>{{File.Descripcion}}</td>
@@ -52,6 +52,9 @@
   </table>
 </div>
 
+<div class="row justify-content-center">
+  <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+</div>
 
 
 <button hidden type="button" class="btn btn-danger" (click)="open(uploadDownloadmodal)"

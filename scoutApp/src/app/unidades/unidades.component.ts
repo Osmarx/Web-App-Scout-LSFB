@@ -2,8 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup } from '@angular/forms';
 import { UnidadesService } from '../mantenimiento/services/unidades.service'
-import { Unidad, unidad } from '../mantenimiento/models/unidades'
+import { Unidad, unidad,ElementImageFile} from '../mantenimiento/models/unidades'
 import { DomSanitizer } from '@angular/platform-browser';
+import { forkJoin } from 'rxjs';  // RxJS 6 syntax
 
 @Component({
   selector: 'app-unidades',
@@ -84,6 +85,21 @@ export class UnidadesComponent implements OnInit {
   ShowImageRectangulo5 : boolean = false
   ShowImageRectangulo6 : boolean = false
 
+  TituloRectangulo1Parte1: string
+  TituloRectangulo1Parte2: string
+  TituloRectangulo2Parte1: string
+  TituloRectangulo2Parte2: string
+  TituloRectangulo3Parte1: string
+  TituloRectangulo3Parte2: string
+  TituloRectangulo4Parte1: string
+  TituloRectangulo4Parte2: string
+  TituloRectangulo5Parte1: string
+  TituloRectangulo5Parte2: string
+  TituloRectangulo6Parte1: string
+  TituloRectangulo6Parte2: string
+
+  multipleRequest: Array<object>;
+  imagesUnidades: Array<ElementImageFile>
 
   constructor(
     private modalService: NgbModal,
@@ -97,7 +113,7 @@ export class UnidadesComponent implements OnInit {
 
   ngOnInit(): void {
     this.rama = this.childMessage
-    console.log(this.urlsImages)
+    
 
     if (localStorage.getItem('isLogin') == "true") {
       console.log("modo desarrollador")
@@ -112,7 +128,7 @@ export class UnidadesComponent implements OnInit {
       (res) => {
 
         this.unidad = res
-        console.log(this.unidad)
+       
         this._idRama = this.unidad._id
 
         this._unidadesService.getElementsPage(this._idRama).subscribe(
@@ -120,30 +136,33 @@ export class UnidadesComponent implements OnInit {
 
             this.dataWithoutImage = res.DataRama
 
-            console.log(this.dataWithoutImage)
+            
 
             this.urlsImages = []
+            this.multipleRequest = []
+            this.imagesUnidades = []
 
             for (var i = 0; i < this.dataWithoutImage.length; i++) {
-            
-              this._unidadesService.getImageElementsperPage(this.dataWithoutImage[i]._id).subscribe(
-                (res) => {
-                  
-                  let urlImage = window.URL.createObjectURL(res.body);
-                  
-                  this.urlsImages.push(this.sanitizer.bypassSecurityTrustUrl(urlImage))
-                  
-
-                },
-                (err) => {
-
-
-                }
-              )
+                
+                this.multipleRequest.push(this._unidadesService.getImageElementsperPage(this.dataWithoutImage[i]._id))
+    
             }
 
+             forkJoin(this.multipleRequest).subscribe((res)=>{
+                
+              for (var i = 0; i < this.dataWithoutImage.length; i++) {
+                  this.imagesUnidades.push(res[i])
+              }
+
+              for (var i = 0; i < this.dataWithoutImage.length; i++) {
+                let urlImage = window.URL.createObjectURL(this.imagesUnidades[i].body);
+                this.urlsImages.push(this.sanitizer.bypassSecurityTrustUrl(urlImage))
+              }
+              
+             })
+
             setTimeout(() => {
-              console.log('This runs after 1000 milliseconds.');
+              
 
               for (var i = 0; i < this.dataWithoutImage.length; i++) {
               
@@ -154,6 +173,7 @@ export class UnidadesComponent implements OnInit {
                   this.urlImagenCarrusel1 = this.urlsImages[i]
                   this.TituloCarrusel1 = this.dataWithoutImage[i].Titulo
                   this.TextoCarrusel1 = this.dataWithoutImage[i].Texto
+                  
                  
                 }
   
@@ -194,9 +214,12 @@ export class UnidadesComponent implements OnInit {
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo1"){
                   this.urlImagenRectangulo1 = this.urlsImages[i]
+                 
                   this.TituloRectangulo1 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo1 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo1 = true
+                  this.TituloRectangulo1Parte1 = this.splitTittle(this.TituloRectangulo1)[0]
+                  this.TituloRectangulo1Parte2 = this.splitTittle(this.TituloRectangulo1)[1]
                 }
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo2"){
@@ -204,6 +227,8 @@ export class UnidadesComponent implements OnInit {
                   this.TituloRectangulo2 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo2 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo2 = true
+                  this.TituloRectangulo2Parte1 = this.splitTittle(this.TituloRectangulo2)[0]
+                  this.TituloRectangulo2Parte2 = this.splitTittle(this.TituloRectangulo2)[1]
                 }
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo3"){
@@ -211,6 +236,8 @@ export class UnidadesComponent implements OnInit {
                   this.TituloRectangulo3 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo3 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo3 = true
+                  this.TituloRectangulo3Parte1 = this.splitTittle(this.TituloRectangulo3)[0]
+                  this.TituloRectangulo3Parte2 = this.splitTittle(this.TituloRectangulo3)[1]
                 }
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo4"){
@@ -218,6 +245,8 @@ export class UnidadesComponent implements OnInit {
                   this.TituloRectangulo4 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo4 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo4 = true
+                  this.TituloRectangulo4Parte1 = this.splitTittle(this.TituloRectangulo4)[0]
+                  this.TituloRectangulo4Parte2 = this.splitTittle(this.TituloRectangulo4)[1]
                 }
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo5"){
@@ -225,6 +254,8 @@ export class UnidadesComponent implements OnInit {
                   this.TituloRectangulo5 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo5 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo5 = true
+                  this.TituloRectangulo5Parte1 = this.splitTittle(this.TituloRectangulo5)[0]
+                  this.TituloRectangulo5Parte2 = this.splitTittle(this.TituloRectangulo5)[1]
                 }
   
                 if(this.dataWithoutImage[i].Field == "Rectangulo6"){
@@ -232,7 +263,8 @@ export class UnidadesComponent implements OnInit {
                   this.TituloRectangulo6 = this.dataWithoutImage[i].Titulo
                   this.TextoRectangulo6 = this.dataWithoutImage[i].Texto
                   this.ShowImageRectangulo6 = true
-                 
+                  this.TituloRectangulo6Parte1 = this.splitTittle(this.TituloRectangulo6)[0]
+                  this.TituloRectangulo6Parte2 = this.splitTittle(this.TituloRectangulo6)[1]
                 }
     
     
@@ -260,11 +292,11 @@ export class UnidadesComponent implements OnInit {
     this.element = element
 
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((result) => {
-      console.log(result)
+      
 
     }, (reason) => {
 
-      console.log(`Dismissed ${this.getDismissReason(reason)}`);
+     this.getDismissReason(reason)
 
     });
   }
@@ -311,7 +343,7 @@ export class UnidadesComponent implements OnInit {
 
     if (this._file && data.Titulo.length > 0 && data.Texto.length > 0) {
 
-      console.log(data)
+    
 
 
       const Data: FormData = new FormData();
@@ -326,7 +358,8 @@ export class UnidadesComponent implements OnInit {
 
       this._unidadesService.AddData(Data, this._idRama).subscribe(
         (res) => {
-          console.log(res)
+          
+          window.location.reload();
         },
         (err) => {
 
@@ -341,8 +374,30 @@ export class UnidadesComponent implements OnInit {
 
   }
 
- awaitUrlImage(){
-   
- }
+  splitTittle(tittle){
 
+    var Tittle_1 = ""
+    var Tittle_2 = "" 
+    var Tittle = []
+
+    Tittle = tittle.split(".")
+
+    for(var i = 0; i < Tittle.length; i++){
+    
+      if (i==0){
+        Tittle_1=Tittle[i]
+      }else{
+        Tittle_2 += Tittle[i]
+      }
+    }
+
+    Tittle = []
+
+    Tittle.push(Tittle_1)
+    Tittle.push(Tittle_2)
+   
+   return Tittle
+
+  }
+ 
 }

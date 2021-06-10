@@ -2,9 +2,118 @@
 
 <h1>{{ title }}</h1>
 
-<!-- this creates a google map on the page with the given lat/lng from -->
-<!-- the component as the initial center of the map: -->
-<agm-map [latitude]="lat" [longitude]="lng">
-  <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+<agm-map #map (mapReady)="onMapReady($event)">
+  <agm-marker  *ngIf="isAdminMode" [iconUrl]="icon" [latitude]="lat" [longitude]="long">
+    <agm-info-window #infoWindow>
+      Esta ubicación se guardara una vez completes el formulario al apretar el botón agregar campamento
+    </agm-info-window>
+  </agm-marker>
+
+  <div *ngFor="let camp of allCamps">
+ <agm-marker  [latitude]="camp.Latitud" [longitude]="camp.Longitud">
+    <agm-info-window #infoWindow>
+     Lugar: {{camp.Lugar}}, Año: {{camp.Ano}}, Campamento de: {{camp.Estacion}}
+    </agm-info-window>
+  </agm-marker> -->
+</div>
 </agm-map>
 
+<div *ngIf="isAdminMode" class="p-2">
+  <div class="row mt-4">
+    <div class="col-4 alert alert-info" role="alert">
+      <p class="text-dark"> Para agregar un campamento:</p>
+      <p class="text-dark">1) Seleccione el lugar en donde se realizó el evento haciendo un click en el mapa.</p>
+      <p class="text-dark">2) Presione el botón agregar campamento para ingresar los datos del evento</p>
+      <p class="text-dark">Nota 1: La coordenada marcada con color negro es la que aún no se encuetra guardada en el servidor</p>
+      <p class="text-dark">Nota 2: El ingreso del años puede no ser correlativo, el programa los ordenará solo</p>
+    </div>
+    <div class="col-2">
+      <a class="btn btn-primary" (click)="open(addCampamento)" role="button">Agregar Campamento </a>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Campamento</th>
+        <th scope="col">Año</th>
+        <th scope="col">Estación del Año</th>
+        <th *ngIf="isAdminMode" scope="col">Eliminar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let camp of allCamps| paginate: config ; index as i">
+        <th scope="row">{{i}}</th>
+        <td>{{camp.Lugar}}</td>
+        <td>{{camp.Ano}}</td>
+        <td>{{camp.Estacion}}</td>
+        <td><button *ngIf="isAdminMode" (click)="deleteCamp(camp._id)" type="button" class="btn btn-danger">Eliminar</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="row justify-content-center">
+  <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+</div>
+
+<ng-template #addCampamento let-modal>
+  <form [formGroup]="CampamentoForm">
+      <div class="modal-header">
+          <h5 class="modal-title AddField-letter" id="AddField-letter">Agregar Campamento</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+              (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+          <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Lugar del Campamento y/o Evento</span>
+              <input formControlName="Lugar" type="text" class="form-control" aria-label="Username"
+                  aria-describedby="basic-addon1">
+          </div>
+
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Año del campamento</span>
+            <input formControlName="Ano" type="text" class="form-control" aria-label="Username"
+                aria-describedby="basic-addon1">
+        </div>
+
+        <div  class="input-group mb-3">
+          <span class="input-group-text">Latitud</span>
+          <input  formControlName="Latitud"   type="text" class="form-control" placeholder="Username" aria-label="Username">
+          <span class="input-group-text">Longitud</span>
+          <input formControlName="Longitud" formControlName="Longitud" type="text" class="form-control" placeholder="Server" aria-label="Server">
+        </div>
+
+          <label for="basic-url" class="form-label">Seleccione Estación del Año Cuando se Realizó Campamento</label>
+          <select formControlName="Estacion" class="form-select input-group mb-3" aria-label="Default select example">
+            <option value="Invierno">Invierno</option>
+            <option value="Otoño">Otoño</option>
+            <option value="Primavera">Primavera</option>
+            <option value="Verano">Verano</option>
+          </select>
+      </div>
+
+      
+
+      <div class="container">
+          <div *ngIf="isAlertOnErr" class="alert alert-danger container" role="alert">
+              {{messageForm}}
+          </div>
+          <div *ngIf="isAlertOnSucc" class="alert alert-success container" role="alert">
+              {{messageForm}}
+          </div>
+      </div>
+
+      <div class="modal-footer">
+          <button type="button" class="btn btn-success" 
+              data-dismiss="modal" (click)="SendDataCampamento()">Agregar Campamento</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+              (click)="modal.dismiss('Cross click')">Salir</button>
+      </div>
+  </form>
+</ng-template>

@@ -2,13 +2,11 @@
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
 
-  <div class="jumbotron row">
+  <div #jumbotron [ngStyle]="bgImage" class="jumbotron row">
     <div class="container">
-      <h1 class="display-3">Hello, world!</h1>
-      <p>This is a template for a simple marketing or informational website. It includes a large callout called a
-        jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.
-      </p>
-      <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
+      <h1 class="display-3">{{JumbotronTitulo}}</h1>
+      <p>{{JumbotronTexto}}</p>
+      <p *ngIf="hiddenAdminButton"><a class="btn btn-primary btn-lg" (click)="open(HistoryModal,'Jumbotron')" role="button">Agregar Campo &raquo;</a></p>
     </div>
   </div>
 
@@ -17,28 +15,72 @@
   <!-- Example row of columns -->
   <div class="row">
     <div class="col-md-4">
-      <h2>Heading</h2>
-      <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris
-        condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec
-        sed odio dui. </p>
-      <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+      <h2 class="titulos-texto">{{OnlyText1Titulo}}</h2>
+      <p>{{OnlyText1Texto}} </p>
+      <p *ngIf="hiddenAdminButton"><a class="btn btn-secondary" (click)="open(HistoryModal,'OnlyText1')" role="button">Agregar Campo &raquo;</a></p>
     </div>
     <div class="col-md-4">
-      <h2>Heading</h2>
-      <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris
-        condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec
-        sed odio dui. </p>
-      <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+      <h2 class="titulos-texto">{{OnlyText2Titulo}}</h2>
+      <p>{{OnlyText2Texto}} </p>
+      <p *ngIf="hiddenAdminButton"><a class="btn btn-secondary" (click)="open(HistoryModal,'OnlyText2')" role="button">Agregar Campo &raquo;</a></p>
     </div>
     <div class="col-md-4">
-      <h2>Heading</h2>
-      <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta
-        felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum
-        massa justo sit amet risus.</p>
-      <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+      <h2 class="titulos-texto">{{OnlyText3Titulo}}</h2>
+      <p>{{OnlyText3Texto}}</p>
+      <p *ngIf="hiddenAdminButton"><a class="btn btn-secondary" (click)="open(HistoryModal,'OnlyText3')" role="button">Agregar Campo &raquo;</a></p>
     </div>
   </div>
 
   <hr>
 
 </div> <!-- /container -->
+
+<ng-template #HistoryModal let-modal>
+  <form [formGroup]="HistoryForm">
+      <div class="modal-header">
+          <h5 class="modal-title AddField-letter" id="AddField-letter">Actualizar Campo {{element}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+              (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+          </button>
+      </div>
+      <div class="modal-body">
+          <div class="input-group mb-3">
+              <span class="input-group-text" id="basic-addon1">Título</span>
+              <input formControlName="Titulo" type="text" class="form-control" aria-label="Username"
+                  aria-describedby="basic-addon1">
+          </div>
+
+          <label for="basic-url" class="form-label">Texto</label>
+          <div class="input-group mb-3">
+              <textarea formControlName="Texto" class="form-control" id="exampleFormControlTextarea1"
+                  rows="3"></textarea>
+          </div>
+
+          <label *ngIf="isInputImageOn" for="basic-url" class="form-label">Subir Imagen Noticia</label>
+          <div *ngIf="isInputImageOn" class="custom-file">
+              <input (change)="onFileSelected($event)" type="file" class="custom-file-input" id="customFileLang"
+                  lang="es">
+              <label class="custom-file-label" for="customFileLang">C:/fakepath/{{fileName}}</label>
+          </div>
+
+      </div>
+
+      <div class="container">
+          <div *ngIf="isAlertOnErr" class="alert alert-danger container" role="alert">
+              {{messageForm}}
+          </div>
+          <div *ngIf="isAlertOnSucc" class="alert alert-success container" role="alert">
+              {{messageForm}}
+          </div>
+      </div>
+
+      <div class="modal-footer">
+          <button type="button" class="btn btn-success" (click)="UpdateOrAddData()"
+              data-dismiss="modal">Agregar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"
+              (click)="modal.dismiss('Cross click')">Salir</button>
+      </div>
+  </form>
+</ng-template>
+

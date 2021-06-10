@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {FilesService} from '../mantenimiento/services/files.service'
+import {FileData} from '../mantenimiento/models/files'
 import * as fileSaver from 'file-saver';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -20,7 +21,13 @@ export class CircularesComponent implements OnInit {
     private _filesService: FilesService,
     
 
-    ) {}
+    ) {
+      this.config = {
+        itemsPerPage: 6,
+        currentPage: 1,
+        totalItems: 0
+      };
+    }
   
 
 
@@ -31,20 +38,27 @@ export class CircularesComponent implements OnInit {
   serverMessageSucc: string;
   serverMessageErr: string;
   hiddenAdminButton: boolean;
-  FilesReq: object;
+  FilesReq: Array<FileData>;
   isopenDeleteButtons= false;
   DescriptionForm = new FormGroup({
     Descripcion: new FormControl('')
   })
+  config: any
 
   ngOnInit(): void {
 
     this._filesService.getFiles().subscribe(
       (response) => {
         
-        console.log(response)
+       
         this.FilesReq = response.body.Archivos
-        console.log(this.FilesReq)
+     
+
+        this.config = {
+          itemsPerPage: 6,
+          currentPage: 1,
+          totalItems: this.FilesReq.length
+        };
         
       },
       (error)=>{
@@ -84,13 +98,13 @@ export class CircularesComponent implements OnInit {
   open(content) {
 
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
-      console.log(result)
+      
       
       this.closeResult = this.Uploadpath
 
       const formData: FormData = new FormData();
 
-      console.log(this.DescriptionForm.value.Descripcion)
+      
 
       formData.append('file',this._file);
       formData.append('Descripcion',this.DescriptionForm.value.Descripcion);
@@ -127,20 +141,20 @@ export class CircularesComponent implements OnInit {
     this._filesService.DownloadFiles(File._id).subscribe(
       (response) => {
         
-        console.log("respuesta",response.body)
+        
         let blob:any = new Blob([response.body], { type: 'charset=utf-8' });
 
-        console.log(blob)
+        
 
         const url = window.URL.createObjectURL(blob);
 
-        console.log(File)
+        
 
          fileSaver.saveAs(blob, File.Nombre); 
 
       },
       (error)=>{
-        console.log(error)
+        
       }
     )
 
@@ -153,7 +167,7 @@ export class CircularesComponent implements OnInit {
   deleteFiles(FileData){
     this._filesService.deleteFiles(FileData).subscribe(
       (req)=>{
-        console.log(req)
+        
         window.location.reload();
       }
     )
@@ -161,6 +175,10 @@ export class CircularesComponent implements OnInit {
       
 
     
+  }
+
+  pageChanged(event) {
+    this.config.currentPage = event;
   }
 
 
