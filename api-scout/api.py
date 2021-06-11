@@ -14,7 +14,7 @@ import os
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'super-secret'
+app.config['SECRET_KEY'] = 'BADEN-POWELL-BROWNSEA'
 api = Api(app)
 CORS(app)
 jwt = JWT(app, authenticate, identity)
@@ -22,7 +22,6 @@ jwt = JWT(app, authenticate, identity)
 
 
 class Login(Resource):
-   
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('mail')
@@ -41,6 +40,7 @@ class Login(Resource):
     
 class News(Resource):
     # poner decordado JWT para peticiones con Token
+    @jwt_required()
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('Titulo')
@@ -88,6 +88,7 @@ class GetImageNews(Resource):
 
 
 class UpdateNews(Resource):
+    @jwt_required()
     def put(self,_id):
         parse = reqparse.RequestParser()
         parse.add_argument('Titulo')
@@ -120,6 +121,7 @@ class UpdateNews(Resource):
         return "noticia actualizada", 200
     
 class DeleteNews(Resource):
+    @jwt_required()
     def delete(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -135,6 +137,7 @@ class DeleteNews(Resource):
 
 
 class UploadFile(Resource):
+   @jwt_required()
    def post(self):
      parse = reqparse.RequestParser()
      parse.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
@@ -174,6 +177,7 @@ class getFiles(Resource):
         return json.loads(json_util.dumps(allFilesJSON,default=str))
 
 class deleteFiles(Resource):
+    @jwt_required()
     def delete(self,fileData):
         db = MongoDBconnect.mongodbConnect()
         Data = json.loads(fileData)
@@ -193,7 +197,8 @@ class Carrousel(Resource):
             allCarrouselData.append(data)
         allCarrouselJSON = {"CarrouselData": allCarrouselData}
         return json.loads(json_util.dumps(allCarrouselJSON,default=str))
-
+    
+    @jwt_required()
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('NumeroCarrousel')
@@ -215,6 +220,7 @@ class Carrousel(Resource):
         return "Carrusel Agregado Correctamente",200
       
 class UpdateCarrousel(Resource):
+    @jwt_required()
     def put(self,isUpdateImage):
         parse = reqparse.RequestParser()
         parse.add_argument('_id')
@@ -262,6 +268,7 @@ class getImageCarrousel(Resource):
 
         
 class Ramas(Resource):
+    @jwt_required()
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Unidad')
@@ -281,7 +288,7 @@ class Ramas(Resource):
 
 
 class Rama(Resource):
-    
+    @jwt_required()
     def post(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -300,7 +307,6 @@ class Rama(Resource):
         Field = None
         for field in fields:
             Field = field
-        print(Field) 
         if(Field):
             db.rama.update_one({'_id': Field['_id']},{
             '$set':{'Unidad':req['Unidad']}}, upsert=False)
@@ -355,6 +361,7 @@ class getImageRama(Resource):
         return send_from_directory('assets/Imagenes/ramas/'+ElementUnidad,ID+ElementName, as_attachment=True)
 
 class UpdateHistory(Resource):
+    @jwt_required()
     def put(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -399,7 +406,7 @@ class History(Resource):
             allData.append(data)
         allDataJson = {"Data": allData}
         return json.loads(json_util.dumps(allDataJson,default=str))
-    
+    @jwt_required()
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Elemento')
@@ -436,6 +443,7 @@ class getHistoryImage(Resource):
         return send_from_directory('assets/Imagenes/historia',ID+ElementName, as_attachment=True)
 
 class Camp(Resource):
+    @jwt_required()
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Lugar')
@@ -463,6 +471,7 @@ class Camp(Resource):
         return json.loads(json_util.dumps(allDataJson,default=str))
 
 class DeleteCamp(Resource):
+    @jwt_required()
     def delete(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]

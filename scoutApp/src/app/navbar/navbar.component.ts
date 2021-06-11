@@ -26,8 +26,10 @@ export class NavbarComponent implements OnInit {
     //console.log(localStorage.getItem('isLogin'))
     if(localStorage.getItem('isLogin')=="true"){
       this.showLogOutButton = true
+      JSON.parse(localStorage.getItem('Data User'))
     }else{
         this.showLogOutButton = false
+        console.log((localStorage.getItem('Data User')))
     }
     
   }
@@ -36,7 +38,8 @@ export class NavbarComponent implements OnInit {
     this.showLogOutButton = false
     localStorage.setItem('isLogin', String(this.showLogOutButton))
     window.location.reload();
-    
+    localStorage.setItem('Data User','Usted no esta logeado')
+    localStorage.setItem('Token','')   
   }
 
   open(content) {

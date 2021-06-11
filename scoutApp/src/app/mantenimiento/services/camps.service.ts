@@ -1,45 +1,53 @@
-import {Injectable} from '@angular/core';
-import {GLOBAL} from './global';
-import {HttpClient, HttpHeaders, HttpResponse} from  '@angular/common/http';
-import {CampsArray} from '../models/maps'
+import { Injectable } from '@angular/core';
+import { GLOBAL } from './global';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { CampsArray } from '../models/maps'
 
 @Injectable()
-export class CampsService{
-    public url: string;
+export class CampsService {
 
-    constructor(private http: HttpClient ){
-		this.url = GLOBAL.url;
+  public url: string;
+  private token: string;
 
-	}
+  constructor(private http: HttpClient) {
+    this.url = GLOBAL.url;
+    this.token = localStorage.getItem('Token')
 
-    AddCamps(CampsData){
-		
-        let params = CampsData
-        let headers = new HttpHeaders({ 'Content-Type': 'application/json'})
+  }
+
+  AddCamps(CampsData) {
+
+    console.log(this.token)
+    let params = CampsData
     
-        let options = { headers: headers, observe: 'response' as 'body'};
-
+    let headers = new HttpHeaders({ 
       
-		return this.http.post<void>(this.url + 'Camp', params, options) 
-     
-        
-    }
+      
+      'Content-Type': 'application/json',
+      'Authorization': 'JWT '+ this.token
+  
+  })
 
-    getAllsCamps(){
-		
-		return this.http.get<CampsArray>(this.url + 'Camp') 
-     
-        
-    }
+    let options = { headers: headers, observe: 'response' as 'body' };
 
-    deleteCamp(_id){
-		
-      let headers = new HttpHeaders({ 'Content-Type': 'application/json'})
-      let options = { headers: headers, observe: 'response' as 'body'};
 
-      return this.http.delete(this.url + '/deleteCamp/'+JSON.stringify(_id),options) 
-       
-          
-      }
+    return this.http.post<void>(this.url + 'Camp', params, options)
+
+
+  }
+
+  getAllsCamps() {
+    return this.http.get<CampsArray>(this.url + 'Camp')
+  }
+
+  deleteCamp(_id) {
+
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json','Authorization': 'JWT '+ this.token})
+    let options = { headers: headers, observe: 'response' as 'body' };
+
+    return this.http.delete(this.url + '/deleteCamp/' + JSON.stringify(_id), options)
+
+
+  }
 
 }

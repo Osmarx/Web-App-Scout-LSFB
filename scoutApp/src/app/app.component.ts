@@ -1,11 +1,14 @@
 import { Component, ViewEncapsulation, ElementRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { TokenService } from './mantenimiento/services/token.service'
+import { Token} from './mantenimiento/models/token'
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [TokenService]
 })
 
 
@@ -17,9 +20,21 @@ export class AppComponent {
   currentRoute: string;
   rama
   isDeveloperModeOn
+  token: Token
 
+  constructor(private router: Router,
+    private elementRef: ElementRef,
+    private tokenService: TokenService
+  ) {
 
-  constructor(private router: Router, private elementRef: ElementRef) {
+    if (localStorage.getItem('isLogin') == "true") {
+
+      var DataUser = JSON.parse(localStorage.getItem('Login Data Token'))
+      this.tokenService.getToken(DataUser).subscribe((res) => {
+              this.token = res.body
+              localStorage.setItem('Token',this.token.access_token)
+      })
+    }
 
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) {
@@ -52,7 +67,9 @@ export class AppComponent {
       }
     });
 
+
   }
+
 
 
 }

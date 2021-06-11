@@ -114,6 +114,7 @@ export class CampamentosComponent implements OnInit {
 
     if (localStorage.getItem('isLogin') == "true") {
       this.isAdminMode = true
+
     } else {
       this.isAdminMode = false
     }

@@ -8,10 +8,11 @@ import {HttpClient, HttpHeaders, HttpResponse} from  '@angular/common/http';
 export class NewsService{
     
     public url: string;
+    private token: string;
 
     constructor(private http: HttpClient ){
 		this.url = GLOBAL.url;
-
+    this.token = localStorage.getItem('Token')
 	}
 
     getAllnews(){
@@ -22,7 +23,7 @@ export class NewsService{
 
     getImageNews(_id){
       
-      let headers = new HttpHeaders({ 'enctype': 'application/json'})
+      let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': 'JWT '+ this.token})
     
       let options = { headers: headers, observe: 'response' as 'body' , responseType: 'blob' as 'json' };
 
@@ -35,7 +36,7 @@ export class NewsService{
     addNews(NewsData){
       
       let params = NewsData
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data'});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 
@@ -49,7 +50,7 @@ export class NewsService{
       
       console.log(JSON.stringify(_id))
       let params = NewsData
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data'});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 
@@ -64,7 +65,7 @@ export class NewsService{
 
       
     
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data'});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 

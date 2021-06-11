@@ -48,7 +48,6 @@ export class MainComponent implements OnInit {
   _file
   _fileImgCarrousel
   fileName: string;
-  user: string
   closeResult: string;
   messageForm: string;
   NewsForm = new FormGroup({
@@ -98,8 +97,6 @@ export class MainComponent implements OnInit {
     this.isAlertOnSucc = false
     this.isAlertCarrouselOn = false
 
-
-    this.user = localStorage.getItem('user')
 
 
 

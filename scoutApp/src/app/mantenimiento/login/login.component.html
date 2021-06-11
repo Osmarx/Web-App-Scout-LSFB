@@ -26,8 +26,9 @@
         <p class="mt-5 mb-3 text-muted">&copy;2021</p>
       </main>
     </form>
-
-    <div class="developer-mode-main" *ngIf="showDeveloperMode">
+    
+    <div class="row justify-content-center p-2" *ngIf="showDeveloperMode">
+      <h1>Modo Mantenimiento</h1>
       <app-navbar [childMessage]="showLogOutButton"></app-navbar>
     </div>
   </div>
