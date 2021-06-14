@@ -25,8 +25,10 @@
     "@popperjs/core": "^2.9.1",
     "angular-bootstrap-md": "^11.0.0",
     "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^4.6.0",
     "bootstrap-icons": "^1.4.0",
+    "crypto-js": "^4.0.0",
     "file-saver": "^2.0.5",
     "jquery": "^3.6.0",
     "mdb-ui-kit": "^3.5.0",
@@ -57,5 +59,17 @@
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "typescript": "~3.8.3"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "crypto": false,
+    "stream": false,
+    "http": false,
+    "tls": false,
+    "zlib": false,
+    "https": false,
+    "net": false
   }
 }

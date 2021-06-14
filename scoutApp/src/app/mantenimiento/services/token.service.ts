@@ -16,11 +16,15 @@ export class TokenService{
 
         let params = userData;
 
-        let headers = new HttpHeaders({ 'Content-Type': 'application/json'})
+        let headers = new HttpHeaders({ 
+        'Content-Type': 'application/json', 
+        'Access-Control-Allow-Origen':'POST'
+        
+    })
     
         let options = { headers: headers, observe: 'response' as 'body'};
 
-		return this.http.post<any>(this.url + 'auth', params, options)
+		return this.http.post<any>(this.url + 'token', params, options)
 
     }
 

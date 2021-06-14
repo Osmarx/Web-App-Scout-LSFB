@@ -10,3 +10,7 @@ h5 { color: rgb(165, 162, 162) }
 p { color: #fff}
 
 u { color: #fff}
+
+.ngx-pagination {
+ color: white !important;
+}

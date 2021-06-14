@@ -16,7 +16,7 @@ export class HistoryService{
     AddHistoryData(_id,Data){
 		
         let params = Data
-        let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
+        let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': this.token});
     
         let options = { headers: headers, observe: 'response' as 'body'};
   
@@ -32,7 +32,7 @@ export class HistoryService{
 
     getHistoryImage(_id){
 
-        let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': 'JWT '+ this.token})
+        let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': this.token})
     
         let options = { headers: headers, observe: 'response' as 'body' , responseType: 'blob' as 'json' };
 		

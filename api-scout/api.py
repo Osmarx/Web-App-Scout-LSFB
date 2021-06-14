@@ -2,25 +2,88 @@ import requests
 from flask import Flask, render_template, request, make_response,jsonify,send_from_directory
 from flask_restful import Resource, Api, reqparse
 import json
-from flask_jwt import JWT, jwt_required, current_identity
 from services.mongo import MongoDBconnect
-from settings.security import authenticate, identity
-from flask_cors import CORS
+from services.randomAuthKey import RandomAuthKey
+from services.AESencrypt import Encrypt_Password
 from datetime import datetime, date
 from bson import json_util, ObjectId
 import werkzeug
 import os
-
-
+import jwt
+import random
+import string
+import ast
+from functools import wraps
+import bcrypt
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'BADEN-POWELL-BROWNSEA'
 api = Api(app)
-CORS(app)
-jwt = JWT(app, authenticate, identity)
+
+
+AUTH_KEY = RandomAuthKey.random_auth_key()
+
+def token_required(function):
+    @wraps(function)
+    def tokenValidation(*args, **kwargs):
+        parser = reqparse.RequestParser()
+        parser.add_argument('Authorization', location='headers')
+        req = parser.parse_args()
+        token=req['Authorization']
+        if token:
+            jwt_token_encoded= bytes(token, 'utf-8')
+            decodeJson = jwt.decode(jwt_token_encoded, AUTH_KEY , algorithms=["HS256"])
+            _id = ObjectId(decodeJson["id"])
+            db = MongoDBconnect.mongodbConnect()
+            users=db.users.find({'_id': _id})
+            User = None
+            for user in users:
+                User = user
+            if(User):
+                return function(*args, **kwargs)
+            else:
+                "El token no fue válidado", 401
+        else:
+            return "El token no fue pasado",401
+
+    
+    return tokenValidation
 
 
 
+class Users(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('mail')
+        parser.add_argument('password')
+        parser.add_argument('Authorization', location='headers')
+        req = parser.parse_args()
+        if req['Authorization']=="yoryito":
+            db = MongoDBconnect.mongodbConnect()
+            EncryptPass= Encrypt_Password.encrypt(req["password"].encode())
+            db.users.insert({
+            "mail": req["mail"],
+            "password": EncryptPass
+            })
+            return "Usuario Agregado Correctamente",200
+        else:
+            return "No autorizado",401
+    
+
+class DeleteUser(Resource):
+    def delete(self,_id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('Authorization', location='headers')
+        req = parser.parse_args()
+        if req['Authorization']=="yoryito":
+            _id = ObjectId(_id)
+            db = MongoDBconnect.mongodbConnect()
+            db.users.delete_one({'_id': _id})
+            return "Usuario Eliminado Correctamente",200
+        else:
+            return "No autorizado",401
+        
+
+    
 class Login(Resource):
     def post(self):
         parser = reqparse.RequestParser()
@@ -29,18 +92,45 @@ class Login(Resource):
         req = parser.parse_args()
         db = MongoDBconnect.mongodbConnect()
         users=db.users.find({'mail': req['mail']})
+        headers = {"Access-Control-Allow-Origin":"*"}
         for user in users:
             if user != "":
-                if user["password"]==req['password']:
-                    return req #logeado exitosamente
+                front_end_pass = req['password'].encode()
+                server_pass =Encrypt_Password.decrypt(user["password"])
+                if bcrypt.checkpw(server_pass, front_end_pass):
+                    return json.loads(json_util.dumps(user,default=str)),200,headers #logeado exitosamente
                 else:
-                    return "Contraseña Inválida", 401
+                    return "Contraseña Inválida", 401,headers
         else:
-            return "Usuario No Encontrado", 404
+            return "Usuario No Encontrado", 404,headers
     
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+
+
+class Token(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('_id')
+        parser.add_argument('mail')
+        parser.add_argument('password')
+        req = parser.parse_args()
+        _id=req["_id"]
+        _id=ast.literal_eval(_id)
+        _id = _id["$oid"]
+        encoded_jwt = jwt.encode({"mail": str(req["mail"]),"password":str(req["password"]),"id":_id}, AUTH_KEY, algorithm="HS256") 
+        token = {"access_token": encoded_jwt.decode('utf-8') }
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return token,200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+ 
 class News(Resource):
     # poner decordado JWT para peticiones con Token
-    @jwt_required()
+    @token_required
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('Titulo')
@@ -62,7 +152,8 @@ class News(Resource):
         })
         _id = str(_id)
         imageFile.save("assets/Imagenes/main/noticias/"+_id+imageFile.filename)
-        return "Guardado en la Base de Datos"
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "Guardado en la Base de Datos",200, headers
     
     def get(self):
         db = MongoDBconnect.mongodbConnect()
@@ -72,7 +163,13 @@ class News(Resource):
             news["Fecha"] = news["Fecha"].strftime("%m/%d/%Y, %H:%M:%S")
             allNews.append(news)
         allNewsJSON = {"Noticias": allNews}
-        return json.loads(json_util.dumps(allNewsJSON,default=str))
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(allNewsJSON,default=str)),200, headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+    
 
 class GetImageNews(Resource):
     def get(self,_id):
@@ -83,12 +180,17 @@ class GetImageNews(Resource):
         News = db.news.find({'_id':id_mongo})
         for news in News:
             filename=news["Imagen"]
-            print(filename)
-        return send_from_directory('assets/Imagenes/main/noticias',ID+filename, as_attachment=True)
-
+        headers = {"Access-Control-Allow-Origin":"*"}
+        resp = send_from_directory('assets/Imagenes/main/noticias',ID+filename, as_attachment=True)
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class UpdateNews(Resource):
-    @jwt_required()
+    @token_required
     def put(self,_id):
         parse = reqparse.RequestParser()
         parse.add_argument('Titulo')
@@ -118,10 +220,15 @@ class UpdateNews(Resource):
             '$set':{'Imagen':imageFile.filename}}, upsert=False)
             os.remove("assets/Imagenes/main/noticias/"+ID+filenameExist)
             imageFile.save("assets/Imagenes/main/noticias/"+ID+imageFile.filename)
-        return "noticia actualizada", 200
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "noticia actualizada", 200,headers
     
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+
 class DeleteNews(Resource):
-    @jwt_required()
+    @token_required
     def delete(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -132,27 +239,37 @@ class DeleteNews(Resource):
             imageFileName=news["Imagen"]
         db.news.delete_one({'_id': id_mongo})
         os.remove('assets/Imagenes/main/noticias/'+ID+imageFileName)
-        return "noticia eliminada", 200
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "noticia eliminada", 200,headers
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 
 
 class UploadFile(Resource):
-   @jwt_required()
-   def post(self):
-     parse = reqparse.RequestParser()
-     parse.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
-     parse.add_argument('Descripcion')
-     args = parse.parse_args()
-     _file = args['file']
-     description = args['Descripcion']
-     filename=_file.filename
-     db = MongoDBconnect.mongodbConnect()
-     _id=db.files.insert({
-         "Nombre": _file.filename,
-         "Descripcion": description
-     }) 
-     _file.save("assets/documentos/"+str(_id)+filename)   
-     return "archivo subido", 200
+    @token_required
+    def post(self):
+        parse = reqparse.RequestParser()
+        parse.add_argument('file', type=werkzeug.datastructures.FileStorage, location='files')
+        parse.add_argument('Descripcion')
+        args = parse.parse_args()
+        _file = args['file']
+        description = args['Descripcion']
+        filename=_file.filename
+        db = MongoDBconnect.mongodbConnect()
+        _id=db.files.insert({
+            "Nombre": _file.filename,
+            "Descripcion": description
+        }) 
+        _file.save("assets/documentos/"+str(_id)+filename)   
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "archivo subido", 200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 
 class DownloadFile(Resource):
@@ -164,7 +281,13 @@ class DownloadFile(Resource):
         Files = db.files.find({'_id':id_mongo})
         for File in Files:
             fileName = File["Nombre"] 
-        return send_from_directory('assets/documentos', ID+fileName, as_attachment=True)
+        resp = send_from_directory('assets/documentos', ID+fileName, as_attachment=True)
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
+
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class getFiles(Resource):
     def get(self):
@@ -174,10 +297,15 @@ class getFiles(Resource):
         for document in files:
             allFiles.append(document)
         allFilesJSON = {"Archivos": allFiles}
-        return json.loads(json_util.dumps(allFilesJSON,default=str))
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(allFilesJSON,default=str)),200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class deleteFiles(Resource):
-    @jwt_required()
+    @token_required
     def delete(self,fileData):
         db = MongoDBconnect.mongodbConnect()
         Data = json.loads(fileData)
@@ -186,7 +314,13 @@ class deleteFiles(Resource):
         id_mongo = ObjectId(ID)
         db.files.delete_one({'_id': id_mongo})
         os.remove('assets/documentos/' +ID+NameFile)
-        return "Archivo Eliminado", 200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Archivo Eliminado", 200,headers
+    
+    def options(self,fileData):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+
 
 class Carrousel(Resource):
     def get(self):
@@ -196,9 +330,14 @@ class Carrousel(Resource):
         for data in CarrouselData:
             allCarrouselData.append(data)
         allCarrouselJSON = {"CarrouselData": allCarrouselData}
-        return json.loads(json_util.dumps(allCarrouselJSON,default=str))
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(allCarrouselJSON,default=str)),200,headers
     
-    @jwt_required()
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+    
+    @token_required
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('NumeroCarrousel')
@@ -217,10 +356,15 @@ class Carrousel(Resource):
             "ImagenCarrousel": filename
         })
         _Imgfile.save("assets/Imagenes/carrusel/"+str(_id)+filename)
-        return "Carrusel Agregado Correctamente",200
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "Carrusel Agregado Correctamente",200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
       
 class UpdateCarrousel(Resource):
-    @jwt_required()
+    @token_required
     def put(self,isUpdateImage):
         parse = reqparse.RequestParser()
         parse.add_argument('_id')
@@ -253,7 +397,12 @@ class UpdateCarrousel(Resource):
         '$set':{'CuerpoCarrousel':req['CuerpoCarrousel']}}, upsert=False)
         db.carrousel.update_one({'_id': id_mongo},{
         '$set':{'ImagenCarrousel':filenameUpdate}}, upsert=False)
-        return "Carrusel Actualizado Correctamente",200
+        headers = {"Access-Control-Allow-Origin":"*"}
+        return "Carrusel Actualizado Correctamente",200,headers
+    
+    def options(self,isUpdateImage):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class getImageCarrousel(Resource):
     def get(self,_id):
@@ -264,11 +413,16 @@ class getImageCarrousel(Resource):
         CarrouselData = db.carrousel.find({'_id':id_mongo})
         for data in CarrouselData:
             filename=data["ImagenCarrousel"]
-        return send_from_directory('assets/Imagenes/carrusel',ID+filename, as_attachment=True)
+        resp = send_from_directory('assets/Imagenes/carrusel',ID+filename, as_attachment=True)
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
 
-        
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
+
 class Ramas(Resource):
-    @jwt_required()
+    @token_required
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Unidad')
@@ -277,18 +431,25 @@ class Ramas(Resource):
         _id=db.ramas.insert({
          "Unidad": req['Unidad']
         })
-        return "Unidad creada correctamente",200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Unidad creada correctamente",200,headers
     
     def get(self,Rama):
         db = MongoDBconnect.mongodbConnect()
         ramas=db.ramas.find({'Unidad': Rama})
         for rama in ramas:
             Rama = rama
-        return json.loads(json_util.dumps(Rama,default=str)),200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(Rama,default=str)),200,headers
+    
+
+    def options(self,Rama):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 
 class Rama(Resource):
-    @jwt_required()
+    @token_required
     def post(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -330,7 +491,8 @@ class Rama(Resource):
                 "ImageFile": req['ImageFile'].filename
              })
             _ImageFile.save('assets/Imagenes/ramas/'+nameFolder+"/"+str(_newId)+req['ImageFile'].filename)
-        return "Guardado Correctamente",200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Guardado Correctamente",200,headers
 
     def get(self,_id):
         _Id = json.loads(_id)
@@ -342,26 +504,35 @@ class Rama(Resource):
         for element in elements:
             data.append(element)
         jsonResponse = {'DataRama':data}
-        return json.loads(json_util.dumps(jsonResponse,default=str)),200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(jsonResponse,default=str)),200,headers
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
     
 class getImageRama(Resource):
     def get(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
-        print(ID)
         id_mongo = ObjectId(ID)
         db = MongoDBconnect.mongodbConnect()
         elements = db.rama.find({"_id":id_mongo})
         ElementUnidad = None
         ElementName = None
         for element in elements:
-            print(element)
             ElementName = element['ImageFile']
             ElementUnidad = element['Unidad'].replace(" ","").replace("í","i").replace("á","a").replace("@","o")
-        return send_from_directory('assets/Imagenes/ramas/'+ElementUnidad,ID+ElementName, as_attachment=True)
+        resp = send_from_directory('assets/Imagenes/ramas/'+ElementUnidad,ID+ElementName, as_attachment=True)
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class UpdateHistory(Resource):
-    @jwt_required()
+    @token_required
     def put(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
@@ -392,7 +563,12 @@ class UpdateHistory(Resource):
         '$set':{'Texto':req['Texto']}}, upsert=False)
         db.history.update_one({'_id': id_mongo},{
         '$set':{'Imagen':_ImageFileName }}, upsert=False)
-        return "Actualizado con Éxito",200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Actualizado con Éxito",200,headers
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
             
 
 
@@ -405,8 +581,10 @@ class History(Resource):
         for data in Data:
             allData.append(data)
         allDataJson = {"Data": allData}
-        return json.loads(json_util.dumps(allDataJson,default=str))
-    @jwt_required()
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(allDataJson,default=str)),200,headers
+
+    @token_required
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Elemento')
@@ -428,7 +606,12 @@ class History(Resource):
         })
         if(req['Imagen']):
             _ImageFile.save("assets/Imagenes/historia/"+str(_Id)+req['Imagen'].filename)
-        return "Agregado con Éxito",200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Agregado con Éxito",200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
         
 class getHistoryImage(Resource):
     def get(self,_id):
@@ -440,10 +623,16 @@ class getHistoryImage(Resource):
         ElementName = None
         for element in elements:
             ElementName = element['Imagen']
-        return send_from_directory('assets/Imagenes/historia',ID+ElementName, as_attachment=True)
+        resp= send_from_directory('assets/Imagenes/historia',ID+ElementName, as_attachment=True)
+        resp.headers.add("Access-Control-Allow-Origin", "*")
+        return resp
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class Camp(Resource):
-    @jwt_required()
+    @token_required
     def post(self):
         parse = reqparse.RequestParser()
         parse.add_argument('Lugar')
@@ -460,7 +649,9 @@ class Camp(Resource):
         "Latitud": req['Latitud'],
         "Estacion": req['Estacion']
         })
-        return "Guardado con éxito", 200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Guardado con éxito", 200,headers
+    
     def get(self):
         db = MongoDBconnect.mongodbConnect()
         Data=db.camps.find()
@@ -468,17 +659,27 @@ class Camp(Resource):
         for data in Data:
             allData.append(data)
         allDataJson = {"CampsData": allData}
-        return json.loads(json_util.dumps(allDataJson,default=str))
+        headers={"Access-Control-Allow-Origin":"*"}
+        return json.loads(json_util.dumps(allDataJson,default=str)),200,headers
+    
+    def options(self):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 class DeleteCamp(Resource):
-    @jwt_required()
+    @token_required
     def delete(self,_id):
         _Id = json.loads(_id)
         ID = _Id["$oid"]
         id_mongo = ObjectId(ID)
         db = MongoDBconnect.mongodbConnect()
         db.camps.delete_one({'_id': id_mongo})
-        return "Campamento Eliminado", 200
+        headers={"Access-Control-Allow-Origin":"*"}
+        return "Campamento Eliminado", 200,headers
+    
+    def options(self,_id):
+        headers = {"Access-Control-Allow-Origin":"*",'Access-Control-Allow-Headers':"*",'Access-Control-Allow-Methods': "*"}
+        return "",200, headers
 
 
 
@@ -495,6 +696,9 @@ class DeleteCamp(Resource):
 
 
 api.add_resource(Login, '/login')
+api.add_resource(Token, '/token')
+api.add_resource(Users, '/user')
+api.add_resource(DeleteUser, '/deleteUser/<string:_id>')
 api.add_resource(News, '/news')
 api.add_resource(GetImageNews, '/getImageNews/<string:_id>')
 api.add_resource(UpdateNews, '/updateNews/<string:_id>')

@@ -24,7 +24,7 @@ export class CampsService {
       
       
       'Content-Type': 'application/json',
-      'Authorization': 'JWT '+ this.token
+      'Authorization':  this.token
   
   })
 
@@ -42,7 +42,7 @@ export class CampsService {
 
   deleteCamp(_id) {
 
-    let headers = new HttpHeaders({ 'Content-Type': 'application/json','Authorization': 'JWT '+ this.token})
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json','Authorization': this.token})
     let options = { headers: headers, observe: 'response' as 'body' };
 
     return this.http.delete(this.url + '/deleteCamp/' + JSON.stringify(_id), options)

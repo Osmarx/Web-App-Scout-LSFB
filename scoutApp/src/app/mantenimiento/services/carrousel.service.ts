@@ -23,7 +23,7 @@ export class CarrouselService{
 
     getImageCarrousel(_id){
 
-        let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': 'JWT '+ this.token})
+        let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': this.token})
     
         let options = { headers: headers, observe: 'response' as 'body' , responseType: 'blob' as 'json' };
 
@@ -34,7 +34,7 @@ export class CarrouselService{
     updateCarrouselData(CarrouselData,isUpdateImage){
 		
         let params = CarrouselData
-        let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token})
+        let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': this.token})
     
         let options = { headers: headers, observe: 'response' as 'body'};
 
@@ -45,7 +45,7 @@ export class CarrouselService{
     AddCarrouselData(CarrouselData){
 		
         let params = CarrouselData
-        let headers = new HttpHeaders({ 'Content-Type': 'application/json','Authorization': 'JWT '+ this.token})
+        let headers = new HttpHeaders({ 'Content-Type': 'application/json','Authorization':  this.token})
     
         let options = { headers: headers, observe: 'response' as 'body'};
 

@@ -16,7 +16,7 @@ export class UserService{
 
 	}
 
-    signUp(userData){
+    Login(userData){
         let params = userData;
         let headers = new HttpHeaders({ 'Content-Type': 'application/json'})
     

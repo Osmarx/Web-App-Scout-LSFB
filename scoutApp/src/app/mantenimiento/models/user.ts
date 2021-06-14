@@ -1,4 +1,10 @@
 export interface User{
-    body: string
-    error: string
+    body: UserData
+
+}
+
+export interface UserData{
+    _id: object;
+    mail: string;
+    password: string;
 }

@@ -23,7 +23,7 @@ export class NewsService{
 
     getImageNews(_id){
       
-      let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': 'JWT '+ this.token})
+      let headers = new HttpHeaders({ 'enctype': 'application/json','Authorization': this.token})
     
       let options = { headers: headers, observe: 'response' as 'body' , responseType: 'blob' as 'json' };
 
@@ -36,7 +36,7 @@ export class NewsService{
     addNews(NewsData){
       
       let params = NewsData
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 
@@ -50,7 +50,7 @@ export class NewsService{
       
       console.log(JSON.stringify(_id))
       let params = NewsData
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 
@@ -65,7 +65,7 @@ export class NewsService{
 
       
     
-      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': 'JWT '+ this.token});
+      let headers = new HttpHeaders({'enctype': 'multipart/form-data','Authorization': this.token});
   
       let options = { headers: headers, observe: 'response' as 'body'};
 

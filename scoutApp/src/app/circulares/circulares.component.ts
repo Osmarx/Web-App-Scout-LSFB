@@ -145,6 +145,7 @@ export class CircularesComponent implements OnInit {
         let blob:any = new Blob([response.body], { type: 'charset=utf-8' });
 
         
+       
 
         const url = window.URL.createObjectURL(blob);
 

@@ -269,7 +269,7 @@ export class UnidadesComponent implements OnInit {
     
     
              }
-            }, 1000);
+            }, 1500);
 
             
       

@@ -4,7 +4,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import {UserService} from '../services/user.service'
 import { TokenService } from '../services/token.service'
 import { Token} from '../models/token'
-
+import { UserData} from '../models/user'
+import * as bcrypt from 'bcryptjs';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ import { Token} from '../models/token'
 })
 export class LoginComponent implements OnInit {
   
+  
   token: Token
   showLogOutButton: boolean;
   messageError: string;
@@ -21,10 +23,11 @@ export class LoginComponent implements OnInit {
   isHidden = false;
   showDeveloperMode: boolean;
   loginForm = new FormGroup({
-    mail: new FormControl('ogonzalez@esinel.cl'),
-    password: new FormControl('123abc'),
+    mail: new FormControl('scoutlsfb@gmail.com'),
+    password: new FormControl('badenpowellLSFB'),
   });
-
+  userData: UserData
+  
   
 
   constructor(private _userService: UserService,
@@ -49,37 +52,39 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    // TODO: Use EventEmitter with form value
-        
-    /* this._userService.getToken(this.loginForm.value).subscribe(res =>{
-      console.log(res.body)
-    }) */
+
+
+    const salt = bcrypt.genSaltSync();
     
+    this.loginForm.value.password =bcrypt.hashSync(this.loginForm.value.password, 10);
+   
     
-    this._userService.signUp(this.loginForm.value).subscribe(
+
+    this._userService.Login(this.loginForm.value).subscribe(
       (response) => {   
                               
         this.showDeveloperMode= true
         this.islogIn = true
         localStorage.setItem('isLogin',String(this.islogIn))
 
-        var UserDataToken = {
-          username: this.loginForm.value.mail,
-          password: this.loginForm.value.password
-        }
+        this.userData = response.body
+
         
-        this.tokenService.getToken(UserDataToken).subscribe((res) => {
+
+        
+        this.tokenService.getToken(this.userData).subscribe((res) => {
           this.token = res.body
+          
           localStorage.setItem('Token',this.token.access_token)
           })
 
-        localStorage.setItem('Data User',JSON.stringify(UserDataToken))
+        localStorage.setItem('Data User',JSON.stringify(this.userData))
       
       },
       (error) => {                            
         this.messageError = error.error
         this.isHidden= true
-        console.error(error.error)
+       
         localStorage.setItem('Data User','Usted no está logeado')
       }
     )

@@ -578,7 +578,6 @@ export class MainComponent implements OnInit {
       this._carrouselService.updateCarrouselData(CarrouselData, isUpdateImage).subscribe(
         (req) => {
 
-          
           window.location.reload();
         }
       )

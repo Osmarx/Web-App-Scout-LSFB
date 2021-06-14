@@ -29,11 +29,13 @@ export class AppComponent {
 
     if (localStorage.getItem('isLogin') == "true") {
 
-      var DataUser = JSON.parse(localStorage.getItem('Login Data Token'))
+      var DataUser = JSON.parse(localStorage.getItem('Data User'))
       this.tokenService.getToken(DataUser).subscribe((res) => {
               this.token = res.body
               localStorage.setItem('Token',this.token.access_token)
       })
+    }else{
+        localStorage.setItem('Token','')
     }
 
     this.router.events.subscribe((e) => {

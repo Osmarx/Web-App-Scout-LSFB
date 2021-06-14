@@ -85,7 +85,7 @@ export class HistoriaComponent implements OnInit {
           this._historyService.getHistoryImage(this.JumbotronData._id)
             .subscribe((res) => {
 
-              console.log(res)
+              
 
               let urlImage = window.URL.createObjectURL(res.body)
               let urlSanitizer = this.sanitizer.bypassSecurityTrustUrl(urlImage)
@@ -119,7 +119,8 @@ export class HistoriaComponent implements OnInit {
           this.OnlyText1Titulo = this.OnlyText1Data.Titulo
           this.OnlyText1Texto = this.OnlyText1Data.Texto
 
-          console.log(this.OnlyText1Data)
+          
+          
 
         }
 
@@ -129,7 +130,7 @@ export class HistoriaComponent implements OnInit {
           this.OnlyText2Titulo = this.OnlyText2Data.Titulo
           this.OnlyText2Texto = this.OnlyText2Data.Texto
 
-          console.log(this.OnlyText2Data)
+         
 
         }
 
@@ -139,7 +140,8 @@ export class HistoriaComponent implements OnInit {
           this.OnlyText3Titulo = this.OnlyText3Data.Titulo
           this.OnlyText3Texto = this.OnlyText3Data.Texto
 
-          console.log(this.OnlyText3Data)
+          
+          
 
         }
       }
@@ -157,11 +159,11 @@ export class HistoriaComponent implements OnInit {
     }
 
     this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then((result) => {
-      console.log(result)
+      
 
     }, (reason) => {
 
-      console.log(`Dismissed ${this.getDismissReason(reason)}`);
+      this.getDismissReason(reason);
 
     });
   }
@@ -190,7 +192,7 @@ export class HistoriaComponent implements OnInit {
     if (event.target.files.length > 0) {
       this._file = event.target.files[0]
       this.fileName = this._file.name
-      console.log(this._file)
+      
     }
   }
 
@@ -199,7 +201,7 @@ export class HistoriaComponent implements OnInit {
 
     var data = this.HistoryForm.value
 
-    console.log(this.element == 'Jumbotron' && this._file && data.Titulo.length > 0 && data.Texto.length > 0)
+    
 
     if (this.element == 'Jumbotron' && this._file && data.Titulo.length > 0 && data.Texto.length > 0) {
 
@@ -218,7 +220,7 @@ export class HistoriaComponent implements OnInit {
       var Id = this.JumbotronData._id
 
       this._historyService.AddHistoryData(Id, Data).subscribe((res) => {
-        console.log(res)
+        
         window.location.reload();
       })
 
@@ -254,7 +256,7 @@ export class HistoriaComponent implements OnInit {
         Data.append('Image', null);
 
         this._historyService.AddHistoryData(Id, Data).subscribe((res) => {
-          console.log(res)
+          
           window.location.reload();
 
         })
