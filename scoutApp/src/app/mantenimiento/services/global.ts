@@ -1,4 +1,4 @@
 export var GLOBAL ={
-	url: 'http://localhost:5000/', 
+	url: 'http://186.64.121.79:5000/', 
 	ip: ''  // opcional
 }

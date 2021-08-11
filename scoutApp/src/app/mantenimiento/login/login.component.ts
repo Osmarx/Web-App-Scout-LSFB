@@ -23,8 +23,8 @@ export class LoginComponent implements OnInit {
   isHidden = false;
   showDeveloperMode: boolean;
   loginForm = new FormGroup({
-    mail: new FormControl('scoutlsfb@gmail.com'),
-    password: new FormControl('badenpowellLSFB'),
+    mail: new FormControl(''),
+    password: new FormControl(''),
   });
   userData: UserData
   
